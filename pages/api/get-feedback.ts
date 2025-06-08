@@ -7,7 +7,7 @@ const supabase = createClient(
 )
 
 export default async function handler(req, res) {
-  const userId = 'demo-user-id' // Replace with a real UUID if needed
+  const userId = 'demo-user-id' // TEMP userId
 
   const { data, error } = await supabase
     .from('feedback')

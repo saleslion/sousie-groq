@@ -7,8 +7,7 @@ const supabase = createClient(
 )
 
 export default async function handler(req, res) {
-  // 👇 TEMP: use fixed user ID for now (replace with a real one from your DB)
-  const userId = 'demo-user-id'
+  const userId = 'demo-user-id' // Replace with a real UUID if needed
 
   const { data, error } = await supabase
     .from('feedback')

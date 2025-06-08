@@ -1,11 +1,9 @@
-import { useSession } from 'next-auth/react'
+\import { useState } from 'react'
 import axios from 'axios'
-import { useState } from 'react'
 import Rating from '../components/Rating'
 import { submitFeedback } from '../lib/feedback'
 
 export default function Home() {
-  const { data: session } = useSession()
   const [prompt, setPrompt] = useState('')
   const [response, setResponse] = useState('')
 
@@ -23,12 +21,10 @@ export default function Home() {
       const { data } = await axios.post('/api/gemini', { prompt: fullPrompt })
       setResponse(data.result)
 
-      if (session?.user) {
-        await axios.post('/api/log-prompt', {
-          prompt: customPrompt,
-          response: data.result
-        })
-      }
+      await axios.post('/api/log-prompt', {
+        prompt: customPrompt,
+        response: data.result
+      })
     } catch (err) {
       console.error('AI call failed:', err)
       setResponse("❌ Failed to generate response. Please check your Gemini API key.")
@@ -38,12 +34,14 @@ export default function Home() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Sousie – Your Smart Cooking Assistant</h1>
+
       <input
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         className="w-full p-2 border rounded mb-4"
-        placeholder="What ingredients do you have?"
+        placeholder="What ingredients do you have? (e.g. chicken, carrots, potatoes)"
       />
+
       <button
         onClick={askAI}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -56,9 +54,8 @@ export default function Home() {
           <p className="mt-6 whitespace-pre-wrap">{response}</p>
           <Rating
             onRate={(rating) => {
-              if (session?.user) {
-                submitFeedback(session.user.id, prompt, response, rating)
-              }
+              // Using static user ID while auth is disabled
+              submitFeedback('demo-user-id', prompt, response, rating)
             }}
           />
         </>

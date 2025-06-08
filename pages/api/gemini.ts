@@ -1,30 +1,43 @@
 // pages/api/gemini.ts
-import type { NextApiRequest, NextApiResponse } from 'next'
-import axios from 'axios'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+export default async function handler(req, res) {
+  const { prompt } = req.body;
+  const apiKey = process.env.GEMINI_API_KEY;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end()
-
-  const { prompt } = req.body
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: 'Missing Gemini API Key' })
+  if (!apiKey) {
+    return res.status(500).json({ error: '❌ Gemini API key not found in env.' });
   }
 
   try {
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
       {
-        contents: [{ parts: [{ text: prompt }] }]
-      },
-      { headers: { 'Content-Type': 'application/json' } }
-    )
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt || 'Suggest a delicious meal for dinner tonight.' }
+              ]
+            }
+          ]
+        })
+      }
+    );
 
-    const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response'
-    res.status(200).json({ result })
-  } catch (err: any) {
-    console.error('Gemini error:', err?.response?.data || err.message)
-    res.status(500).json({ error: 'Failed to connect to Gemini API' })
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('🔴 Gemini error response:', data);
+      return res.status(response.status).json({ error: data.error?.message || 'Unknown Gemini API error.' });
+    }
+
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No AI result returned.';
+    return res.status(200).json({ result });
+
+  } catch (err) {
+    console.error('❌ Gemini request failed:', err);
+    return res.status(500).json({ error: 'Gemini request failed.' });
   }
 }

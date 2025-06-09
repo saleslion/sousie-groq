@@ -57,19 +57,17 @@ export default function SousieChat() {
   };
 
   const handleSurprise = async () => {
-    setLoading(true);
     const surprisePrompt: Message = {
       role: 'user',
       content:
         'Surprise me with 4 diverse and exciting menus with fun names, a main dish and side dish, with ingredients and steps in a fun narrative tone like "Sunset in a Bowl".',
     };
-
     await fetchAndParseReply([...messages, surprisePrompt]);
   };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-    const newMessages: Message[] = [...messages, { role: 'user', content: input.trim() }];
+    const newMessages = [...messages, { role: 'user', content: input.trim() }];
     setInput('');
     await fetchAndParseReply(newMessages);
   };
@@ -105,11 +103,11 @@ export default function SousieChat() {
                 ingredients: m.main?.ingredients
                   ? Object.entries(m.main.ingredients).map(([item, amount]) => ({
                       item,
-                      metric: amount,
-                      us: amount,
+                      metric: String(amount),
+                      us: String(amount),
                     }))
                   : [],
-                steps: m.main?.steps || [],
+                steps: Array.isArray(m.main?.steps) ? m.main.steps : [],
               })),
               sides: parsed.map((m: any) => ({
                 name: m.side?.dish || m.side || 'Side Dish',
@@ -117,11 +115,11 @@ export default function SousieChat() {
                 ingredients: m.side?.ingredients
                   ? Object.entries(m.side.ingredients).map(([item, amount]) => ({
                       item,
-                      metric: amount,
-                      us: amount,
+                      metric: String(amount),
+                      us: String(amount),
                     }))
                   : [],
-                steps: m.side?.steps || [],
+                steps: Array.isArray(m.side?.steps) ? m.side.steps : [],
               })),
             };
             setMenu(converted);
@@ -151,7 +149,7 @@ export default function SousieChat() {
   const renderDish = (dish: Dish) => {
     const isOpen = expanded[dish.name];
     return (
-      <div key={dish.name} className="rounded-xl border bg-white shadow hover:shadow-md transition-all">
+      <div key={dish.name} className="rounded-xl border bg-white shadow-sm hover:shadow-md transition-all">
         <button
           onClick={() => toggleDish(dish.name)}
           className="w-full text-left p-3 font-semibold text-lg"

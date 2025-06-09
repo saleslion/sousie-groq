@@ -58,7 +58,7 @@ export default function SousieChat() {
 
   const handleSurprise = async () => {
     setLoading(true);
-    const surprisePrompt = {
+    const surprisePrompt: Message = {
       role: 'user',
       content:
         'Surprise me with 4 diverse and exciting menus with fun names, a main dish and side dish, with ingredients and steps in a fun narrative tone like "Sunset in a Bowl".',
@@ -69,7 +69,7 @@ export default function SousieChat() {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-    const newMessages = [...messages, { role: 'user', content: input.trim() }];
+    const newMessages: Message[] = [...messages, { role: 'user', content: input.trim() }];
     setInput('');
     await fetchAndParseReply(newMessages);
   };
@@ -151,7 +151,7 @@ export default function SousieChat() {
   const renderDish = (dish: Dish) => {
     const isOpen = expanded[dish.name];
     return (
-      <div key={dish.name} className="rounded-xl border bg-white shadow-sm hover:shadow-md transition-all">
+      <div key={dish.name} className="rounded-xl border bg-white shadow hover:shadow-md transition-all">
         <button
           onClick={() => toggleDish(dish.name)}
           className="w-full text-left p-3 font-semibold text-lg"

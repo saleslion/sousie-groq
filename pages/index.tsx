@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import MenuDisplay from '@/components/MenuDisplay';
+import MenuDisplay from '../components/MenuDisplay';
 
 type Role = 'user' | 'assistant';
 

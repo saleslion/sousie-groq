@@ -24,29 +24,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const groqRes = await groq.chat.completions.create({
-      model: 'mixtral-8x7b-32768',
+      model: 'llama3-8b-8192',
       messages,
       temperature: 0.7,
     });
 
     const reply = groqRes.choices?.[0]?.message?.content || '';
 
-    // Optional: Log to Supabase
+    // Optional: Log to Supabase if userId exists
     if (userId) {
       await supabase.from('prompts').insert([
         {
           user_id: userId,
           messages,
           response: reply,
-          surprise,
+          surprise: surprise || false,
           cuisine_filter: cuisineFilter || null,
         },
       ]);
     }
 
     return res.status(200).json({ reply });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Groq API error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Groq request failed', details: err?.response?.data || err.message });
   }
 }
